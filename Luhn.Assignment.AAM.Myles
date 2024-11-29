@@ -1,0 +1,118 @@
+import csv
+
+# Rename file object to avoid conflict with csv module
+csv_file = open("Info.csv", "w", newline='')
+
+# Variables to hold customer info
+first_name = ""
+last_name = ""
+city = ""
+postal_code = ""
+credit_card = ""
+
+def printMenu():
+    while True:
+        print("1. Enter Customer Information")  
+        print("2. View Customer Information")
+        print("3. Exit")
+        
+        try:
+            choice = int(input("Please select an option (1, 2, or 3): "))
+            if choice == 2:
+                enter_customer_information()
+                validateCreditCard()
+                validatePostalCode()
+            elif choice == 1:
+                generateCustomerDataFile()
+            elif choice == 3:
+                print("You have now exited the program.")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+def enter_customer_information():
+    global first_name, last_name, city
+    print("\nEnter Customer Information")
+    
+    # Collect customer details
+    first_name = input("Enter your first name: ")
+    last_name = input("Enter your last name: ")
+    city = input("Enter the city you live in: ")
+
+    # Store the customer information
+    customer_data = {
+        "first name": first_name,
+        "last name": last_name,
+        "city": city
+    }
+
+    print("\nCustomer Information Saved:")
+    print(f"Name: {customer_data['first name']}")
+    print(f"Last name: {customer_data['last name']}")
+    print(f"City: {customer_data['city']}")
+    
+    input("\nPress Enter to return to the main menu...")
+
+def validatePostalCode():
+    global postal_code
+    verified_postal_code = False
+    while not verified_postal_code:
+        postal_code = input("Enter your postal code: ")
+        with open("Postal_Codes.txt", "r") as file_2:
+            if len(postal_code) == 3 and postal_code in file_2.read():
+                print("Valid postal code.")
+                csv_file.write(postal_code + "\n")  # Save postal code to CSV file
+                verified_postal_code = True
+            else:
+                print("Invalid postal code. Please try again.")
+
+def validateCreditCard():
+    global credit_card
+    verified_credit_card = False
+    while not verified_credit_card:
+        credit_card = input("Enter your credit card number: ").replace(" ", "")
+        if len(credit_card) < 13 or len(credit_card) > 19:
+            print("Invalid credit card number length. Please try again.")
+            continue
+        
+        # Luhn Algorithm for validation
+        total = 0
+        reverse_digits = credit_card[::-1]
+        for i, digit in enumerate(reverse_digits):
+            n = int(digit)
+            if i % 2 == 1:  # Even index in reverse (odd position in the original number)
+                n *= 2
+                if n > 9:
+                    n -= 9
+            total += n
+        
+        if total % 10 == 0:
+            print("Valid credit card.")
+            csv_file.write(credit_card + "\n")
+            verified_credit_card = True
+        else:
+            print("Invalid credit card number. Please try again.")
+
+def generateCustomerDataFile():
+    # Read and display contents of Info.csv file
+    csv_file.seek(0)  # Go to the beginning of the file
+    print("\nCustomer Information from file:")
+    print(csv_file.read())
+    input("\nPress Enter to return to the main menu...")
+
+# Main entry point for the program
+if __name__ == "__main__":
+    printMenu()
+
+# Close the CSV file at the end
+csv_file.close()
+
+
+
+
+
+
+
+
